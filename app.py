@@ -9,22 +9,24 @@ st.set_page_config(
 )
 
 st.title("📰 無廣告新聞閱讀器")
-st.write("貼上充滿廣告的新聞網址，一鍵還你乾淨的純文字閱讀體驗！")
 
-# 接收網址輸入（支援網址列帶入參數，方便未來做自動化）
+# 自動抓取網址列帶入的 ?url= 參數
 query_params = st.query_params
-default_url = query_params.get("url", "")
+target_url = query_params.get("url", "")
 
-url = st.text_input("請輸入新聞網址：", value=default_url)
+# 顯示輸入框（如果沒有從書籤帶參數進來，就手動輸入）
+url = st.text_input("請輸入新聞網址：", value=target_url)
 
-if st.button("開始淨化", type="primary"):
-    if not url.strip():
+# 判斷：如果網址列本身就帶有 url 參數，或者使用者點了按鈕，就直接執行解析
+if target_url or st.button("開始淨化", type="primary"):
+    active_url = target_url if target_url else url
+    
+    if not active_url.strip():
         st.warning("請先輸入有效的網址！")
     else:
         with st.spinner("正在努力抓取並過濾廣告中..."):
             try:
-                # 使用 newspaper3k 解析新聞
-                article = Article(url, language='zh')
+                article = Article(active_url, language='zh')
                 article.download()
                 article.parse()
                 
@@ -37,13 +39,9 @@ if st.button("開始淨化", type="primary"):
                     st.error("無法有效解析此網頁內容，可能是該網站有嚴格的反爬蟲保護。")
                 else:
                     st.success("解析成功！")
-                    
-                    # 顯示文章資訊
                     st.markdown(f"## {title}")
-                    st.caption(f"來源網站：{url.split('/')[2]} | 作者：{authors} | 發布日期：{publish_date}")
+                    st.caption(f"來源網站：{active_url.split('/')[2]} | 作者：{authors} | 發布日期：{publish_date}")
                     st.divider()
-                    
-                    # 顯示乾淨內文
                     st.markdown(text)
                     
             except Exception as e:
