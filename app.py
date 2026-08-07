@@ -8,7 +8,7 @@ st.set_page_config(
     layout="centered"
 )
 
-st.Title("📰 無廣告新聞閱讀器")
+st.title("📰 無廣告新聞閱讀器")
 st.write("貼上充滿廣告的新聞網址，一鍵還你乾淨的純文字閱讀體驗！")
 
 # 接收網址輸入（支援網址列帶入參數，方便未來做自動化）
